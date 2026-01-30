@@ -6,12 +6,12 @@
 A simple AI chatbot for personal finance. Upload your portfolio CSV, ask questions, get smart answers.
 
 ## Folder Structure
-financial-advisor-rag/
-├── app.py
-├── .env
-├── requirements.txt
-├── README.md
-├── sample_portfolio.csv
+-financial-advisor-rag/
+-├── app.py
+-├── .env
+-├── requirements.txt
+-├── README.md
+-├── sample_portfolio.csv
 
 ## Key Concepts
 - **AI Agent**: Like a robot that decides steps (e.g., "Search data → Get price → Calculate").
