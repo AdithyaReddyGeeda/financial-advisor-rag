@@ -5,8 +5,7 @@
 ## What is This?
 A simple AI chatbot for personal finance. Upload your portfolio CSV, ask questions, get smart answers.
 
-## For Beginners: Key Concepts
-- **CSV**: Spreadsheet file (open in Excel). Example: List stocks you own.
+## Key Concepts
 - **AI Agent**: Like a robot that decides steps (e.g., "Search data → Get price → Calculate").
 - **RAG**: Makes AI accurate by searching your file first.
 - **Tools**: Extra powers like fetching stock prices.
