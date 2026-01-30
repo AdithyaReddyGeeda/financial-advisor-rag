@@ -1,4 +1,3 @@
-# financial-advisor-rag
 
 # Personalized Financial Advisor Chatbot with RAG
 
