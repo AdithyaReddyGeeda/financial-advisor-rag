@@ -24,7 +24,7 @@ A simple AI chatbot for personal finance. Upload your portfolio CSV, ask questio
 - Crashes? Restart terminal, rerun pip.
 
 
-## Extensions (For Fun/Learning)
+## Extensions
 - Add news sentiment: New tool with web search.
 - Better Sharpe: Fetch real historical data from yfinance.
 - PDFs: Use unstructured to handle bank statements.
