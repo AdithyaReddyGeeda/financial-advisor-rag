@@ -10,14 +10,13 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 import pandas as pd
-from langchain.docstore.document import Document
+from langchain_core.documents import Document
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.tools import tool
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_groq import ChatGroq
-from langchain.agents import create_react_agent, AgentExecutor
-from langchain.tools import tool
-from langchain.prompts import PromptTemplate
-from langchain.memory import ConversationBufferMemory
+from langchain.agents import create_agent
 import yfinance as yf
 
 # --- Config & Constants ---
@@ -135,17 +134,13 @@ def calculate_sharpe_ratio(
     )
 
 
-# --- Agent Prompt ---
-AGENT_PROMPT_TEMPLATE = """You are a helpful, honest financial advisor. Use the tools when needed.
+# --- Agent system prompt ---
+AGENT_SYSTEM_PROMPT = """You are a helpful, honest financial advisor. Use the tools when needed.
 - Answer from the user's portfolio when they upload one (use retrieve_portfolio).
 - Use get_stock_price, get_stock_info, calculate_holding_value for market data.
 - Use calculate_sharpe_ratio for risk-adjusted return questions.
 - Be clear when something is an estimate or requires real data you don't have.
-- Never give specific tax or legal advice; suggest consulting a professional when relevant.
-
-Question: {input}
-Thought: {agent_scratchpad}"""
-agent_prompt = PromptTemplate.from_template(AGENT_PROMPT_TEMPLATE)
+- Never give specific tax or legal advice; suggest consulting a professional when relevant."""
 
 
 # --- Helpers ---
@@ -224,14 +219,14 @@ with st.sidebar:
                 st.session_state["vectorstore"] = Chroma.from_documents(
                     docs, embeddings, collection_name=CHROMA_COLLECTION
                 )
-                if "agent_executor" in st.session_state:
-                    del st.session_state["agent_executor"]
+                if "agent_graph" in st.session_state:
+                    del st.session_state["agent_graph"]
 
     st.divider()
     if st.button("Clear chat"):
         st.session_state.messages = []
-        if "agent_executor" in st.session_state:
-            del st.session_state["agent_executor"]
+        if "agent_graph" in st.session_state:
+            del st.session_state["agent_graph"]
         st.rerun()
 
     with st.expander("CSV format"):
@@ -241,12 +236,13 @@ with st.sidebar:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if "agent_executor" not in st.session_state:
+if "agent_graph" not in st.session_state:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         st.error("GROQ_API_KEY not set. Add it to your .env file.")
         st.stop()
-    llm = ChatGroq(model=GROQ_MODEL, temperature=0.7, api_key=api_key)
+    # Use model string so create_agent uses init_chat_model (best compatibility)
+    model_id = f"groq:{GROQ_MODEL}"
     tools = [get_stock_price, get_stock_info, calculate_holding_value, calculate_sharpe_ratio]
 
     @tool
@@ -259,15 +255,10 @@ if "agent_executor" not in st.session_state:
         return "\n".join([doc.page_content for doc in results]) if results else "No matching portfolio data."
 
     tools.append(retrieve_portfolio)
-    agent = create_react_agent(llm, tools, agent_prompt)
-    memory = ConversationBufferMemory(memory_key="chat_history")
-    st.session_state["agent_executor"] = AgentExecutor(
-        agent=agent,
+    st.session_state["agent_graph"] = create_agent(
+        model=model_id,
         tools=tools,
-        memory=memory,
-        verbose=True,
-        handle_parsing_errors=True,
-        max_iterations=10,
+        system_prompt=AGENT_SYSTEM_PROMPT,
     )
 
 # Chat
@@ -283,11 +274,30 @@ if user_input := st.chat_input("Ask about your portfolio or the market (e.g. Wha
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                response = st.session_state["agent_executor"].invoke({"input": user_input})
-                out = response.get("output", "I couldn't generate a response.")
+                # Build messages: full history (already includes the new user message)
+                messages = []
+                for msg in st.session_state["messages"]:
+                    if msg["role"] == "user":
+                        messages.append(HumanMessage(content=msg["content"]))
+                    else:
+                        messages.append(AIMessage(content=msg["content"]))
+
+                config = {"recursion_limit": 50}
+                result = st.session_state["agent_graph"].invoke(
+                    {"messages": messages},
+                    config=config,
+                )
+                out_messages = result.get("messages", [])
+                # Last message is the model's reply
+                out = "I couldn't generate a response."
+                for m in reversed(out_messages):
+                    if isinstance(m, AIMessage) and m.content:
+                        out = m.content if isinstance(m.content, str) else str(m.content)
+                        break
                 st.markdown(out)
                 st.session_state.messages.append({"role": "assistant", "content": out})
             except Exception as e:
+                st.exception(e)
                 err_msg = "Something went wrong. Please try again or rephrase your question."
                 st.error(err_msg)
                 st.session_state.messages.append({"role": "assistant", "content": err_msg})

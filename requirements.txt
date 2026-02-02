@@ -1,11 +1,13 @@
-langchain==0.3.0
-langchain-community==0.3.0
-langchain-groq==0.2.0
-langchain-huggingface==0.1.0
-chromadb==0.5.5
-streamlit==1.38.0
-yfinance==0.2.43
-pandas==2.2.3
-python-dotenv==1.0.1
-unstructured==0.15.12
-sentence-transformers==3.1.1
+# Core - use >= so pip can pick Python 3.13–compatible versions
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-groq>=0.2.0
+langchain-huggingface>=0.1.0
+chromadb>=0.5.0
+streamlit>=1.38.0
+yfinance>=0.2.40
+pandas>=2.0.0
+python-dotenv>=1.0.0
+
+# For local embeddings (BAAI/bge-small-en-v1.5)
+sentence-transformers>=3.0.0

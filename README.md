@@ -1,32 +1,74 @@
+# Personalized AI Financial Advisor
 
-# Personalized Financial Advisor Chatbot with RAG
+A Streamlit chatbot that uses an AI agent + RAG to answer questions about your portfolio and the market. Upload a portfolio CSV, then ask about holdings, prices, and risk.
 
-## What is This?
-A simple AI chatbot for personal finance. Upload your portfolio CSV, ask questions, get smart answers.
+## What it does
 
+- **RAG**: Indexes your portfolio CSV so the AI can answer from your actual holdings.
+- **Tools**: Fetches stock prices (yfinance), company info, calculates holding values and Sharpe ratio.
+- **Agent**: Uses Groq (Llama) to decide when to call tools and how to answer.
 
-## Key Concepts
-- **AI Agent**: Like a robot that decides steps (e.g., "Search data → Get price → Calculate").
-- **RAG**: Makes AI accurate by searching your file first.
-- **Tools**: Extra powers like fetching stock prices.
+## Setup
 
-## How to Run Locally 
-1. Open Anaconda Prompt/Terminal.
-2. Navigate to folder: `cd path/to/financial-advisor-rag` (replace path).
-3. Install libraries: `pip install -r requirements.txt` (takes 5–10 min first time).
-4. Run app: `streamlit run app.py`
-5. Browser opens http://localhost:8501 — upload sample CSV, chat!
+1. **Clone and enter the project**
+   ```bash
+   cd financial-advisor-rag
+   ```
+
+2. **Create a virtual environment (recommended)**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate   # macOS/Linux
+   # or:  .venv\Scripts\activate   # Windows
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Add your Groq API key**
+   - Get a key at [console.groq.com](https://console.groq.com/).
+   - Create a `.env` file in the project root with:
+   ```env
+   GROQ_API_KEY=gsk_your_actual_key_here
+   ```
+
+## Run the app
+
+```bash
+streamlit run app.py
+```
+
+Open http://localhost:8501 in your browser. Upload a CSV, then ask questions (e.g. “What’s the price of Tesla?”, “What’s in my portfolio?”).
+
+## Portfolio CSV format
+
+Your CSV must have these columns:
+
+| Column          | Description     |
+|-----------------|-----------------|
+| `ticker`        | Stock symbol    |
+| `shares`        | Number of shares |
+| `purchase_price`| Price per share |
+
+Example:
+
+```csv
+ticker,shares,purchase_price
+AAPL,10,150.50
+TSLA,5,200.00
+```
 
 ## Troubleshooting
-- Error "No Groq key"? Check .env.
-- Slow? First run downloads models — wait.
-- Upload fails? CSV must have columns: ticker,shares,purchase_price.
-- Crashes? Restart terminal, rerun pip.
 
+| Issue | What to do |
+|-------|------------|
+| “GROQ_API_KEY not set” | Add `GROQ_API_KEY=...` to `.env` and restart the app. |
+| “CSV must have columns…” | Use exactly `ticker`, `shares`, `purchase_price`. |
+| First run is slow | Embedding model and dependencies download on first use. |
+| Import or runtime errors | Use Python 3.11 or 3.12 if you hit compatibility issues. |
 
-## Extensions
-- Add news sentiment: New tool with web search.
-- Better Sharpe: Fetch real historical data from yfinance.
-- PDFs: Use unstructured to handle bank statements.
+## Disclaimer
 
-Disclaimer: Educational only. Not financial advice.
+For educational use only. Not financial, tax, or legal advice.
