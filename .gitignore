@@ -1,0 +1,23 @@
+# Secrets - never commit
+.env
+.env.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/
+
+# Chroma / local DB
+chroma_db/
+*.db
+
+# IDE / OS
+.idea/
+.DS_Store
