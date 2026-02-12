@@ -1,12 +1,12 @@
 # Personalized AI Financial Advisor
 
-A Streamlit chatbot that uses an AI agent + RAG to answer questions about your portfolio and the market. Upload a portfolio CSV, then ask about holdings, prices, and risk.
+A Streamlit chatbot that uses an AI agent + RAG to answer questions about your portfolio and the market. Upload a portfolio CSV, then ask about holdings, prices, and risk
 
 ## What it does
 
-- **RAG**: Indexes your portfolio CSV so the AI can answer from your actual holdings.
-- **Tools**: Fetches stock prices (yfinance), company info, calculates holding values and Sharpe ratio.
-- **Agent**: Uses Groq (Llama) to decide when to call tools and how to answer.
+- **RAG**: Indexes your portfolio CSV so the AI can answer from your actual holdings
+- **Tools**: Fetches stock prices (yfinance), company info, calculates holding values and Sharpe ratio
+- **Agent**: Uses Groq (Llama) to decide when to call tools and how to answer
 
 ## Setup
 
